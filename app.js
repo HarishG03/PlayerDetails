@@ -90,23 +90,21 @@ app.get('/matches/:matchId/players', async (request, response) => {
   response.send(result6.map(eachDet => responseObjPlayer(eachDet)))
 })
 
-const displayResultTotal = dbObj => {
-  return {
-    playerId: dbObj.player_id,
-    playerName: dbObj.player_name,
-    totalScore: dbObj['sum(score)'],
-    totalFours: dbObj['sum(fours)'],
-    totalSixes: dbObj['sum(sixes)'],
-  }
-}
 app.get('/players/:playerId/playerScores', async (request, response) => {
-  const {playerId1} = request.params
+  const {playerId} = request.params
+  console.log(playerId)
   const query7 = `
-  SELECT player_id,player_name,SUM(score),SUM(fours),SUM(sixes)
-  FROM player_details INNER JOIN player_match_score ON player_details.player_id = player_match_score.player_id
-  WHERE player_details.player_id = ${playerId1}`
+SELECT
+player_details.player_id AS playerId,
+player_details.player_name AS playerName,
+SUM(player_match_score.score) AS totalScore,
+SUM(fours) AS totalFours,
+SUM(sixes) AS totalSixes FROM
+player_details INNER JOIN player_match_score ON
+player_details.player_id = player_match_score.player_id
+WHERE player_details.player_id = ${playerId}`
   const result7 = await db.all(query7)
   console.log(result7)
-  response.send(displayResultTotal(result7))
+  response.send(result7)
 })
 module.exports = app
